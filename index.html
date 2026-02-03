@@ -1,5 +1,3 @@
-
-
 <!doctype html>
 <html lang="it">
 <head>
@@ -24,7 +22,6 @@
       padding-top: calc(12px + var(--safeTop));
       padding-bottom: calc(74px + var(--safeBot));
     }
-    .wrap{max-width:720px;margin:0 auto;padding:14px;}
     .topbar{
       display:flex;align-items:center;justify-content:space-between;gap:10px;
       position:sticky;top:0;
@@ -34,17 +31,24 @@
       border-bottom:1px solid rgba(32,48,79,.6);
       z-index:10;
     }
-    .title{font-weight:900;letter-spacing:.2px}
+    .title{font-weight:950;letter-spacing:.2px}
     .chip{
       display:inline-flex;align-items:center;gap:8px;
       padding:7px 10px;border-radius:999px;
       border:1px solid var(--line); background:#0b1220; color:var(--muted); font-size:12px;
     }
+    .wrap{max-width:720px;margin:0 auto;padding:14px;}
+    .stack{display:grid;gap:12px}
+
     .card{
       background:rgba(18,26,42,.92);
       border:1px solid var(--line); border-radius:16px; padding:14px;
     }
-    .stack{display:grid;gap:12px}
+    .sectionTitle{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+      margin:0 0 10px 0; font-size:13px; color:var(--muted); font-weight:900;
+    }
+
     label{display:block;font-size:12px;color:var(--muted);margin:6px 0}
     input{
       width:100%; padding:14px 12px; border-radius:12px;
@@ -53,9 +57,10 @@
     }
     input:focus{border-color:rgba(76,141,255,.85); box-shadow:0 0 0 3px rgba(76,141,255,.16);}
     .row{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+
     .btn{
       border:1px solid var(--line); background:#0b1220; color:var(--text);
-      padding:14px 12px; border-radius:14px; cursor:pointer; font-weight:900;
+      padding:14px 12px; border-radius:14px; cursor:pointer; font-weight:950;
       font-size:16px;
     }
     .btn:active{transform:scale(.99)}
@@ -63,7 +68,9 @@
     .btn.lose{border-color:rgba(255,77,79,.6)}
     .btn.win:hover{border-color:rgba(38,208,124,.95)}
     .btn.lose:hover{border-color:rgba(255,77,79,.95)}
-    .btn.small{padding:10px 12px;font-size:13px;color:var(--muted);font-weight:800}
+    .btn.small{padding:10px 12px;font-size:13px;color:var(--muted);font-weight:900}
+    .danger{border-color:rgba(255,77,79,.7)}
+
     .kpis{display:grid;gap:10px;grid-template-columns:1fr 1fr}
     .kpi{
       background:#0b1220;border:1px solid var(--line);border-radius:14px;padding:12px;
@@ -73,9 +80,10 @@
     .v.pos{color:var(--win)}
     .v.neg{color:var(--lose)}
     .hint{font-size:12px;color:var(--muted);line-height:1.45}
+
     table{width:100%; border-collapse:collapse; font-size:13px}
     th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
-    th{color:var(--muted);font-size:12px;font-weight:800}
+    th{color:var(--muted);font-size:12px;font-weight:900}
     .tag{
       display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:950;
       border:1px solid var(--line);
@@ -84,7 +92,9 @@
     .tag.lose{color:#0b0f17;background:var(--lose);border-color:rgba(255,77,79,.2)}
     .profit.pos{color:var(--win);font-weight:950}
     .profit.neg{color:var(--lose);font-weight:950}
+
     .chartWrap{background:#0b1220;border:1px solid var(--line);border-radius:14px;padding:12px}
+
     .bottomNav{
       position:fixed;left:0;right:0;bottom:0;
       padding-bottom: var(--safeBot);
@@ -96,14 +106,14 @@
     .tabs{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 12px;}
     .tab{
       border:1px solid var(--line);background:#0b1220;color:var(--muted);
-      padding:10px 8px;border-radius:14px;font-weight:900;font-size:12px;cursor:pointer;
+      padding:10px 8px;border-radius:14px;font-weight:950;font-size:12px;cursor:pointer;
       display:flex;flex-direction:column;align-items:center;gap:6px;
     }
     .tab.active{border-color:rgba(76,141,255,.85);color:var(--text)}
     .ico{font-size:16px;line-height:1}
+
     .page{display:none}
     .page.active{display:block}
-    .danger{border-color:rgba(255,77,79,.7)}
   </style>
 </head>
 
@@ -117,7 +127,14 @@
     <!-- HOME -->
     <section class="page active" id="page-home">
       <div class="stack">
+
+        <!-- Quick input -->
         <div class="card">
+          <div class="sectionTitle">
+            <span>Inserisci pick</span>
+            <span class="chip">Quota & puntata modificabili</span>
+          </div>
+
           <div class="row">
             <div>
               <label for="stake">Puntata (€)</label>
@@ -139,23 +156,61 @@
           </div>
         </div>
 
+        <!-- Budget -->
         <div class="card">
+          <div class="sectionTitle">
+            <span>💰 Budget</span>
+            <span class="chip">Bankroll live</span>
+          </div>
+
           <div class="kpis">
+            <div class="kpi">
+              <div class="t">Budget iniziale</div>
+              <div class="v" id="budgetStart">€ 0.00</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Bankroll attuale</div>
+              <div class="v" id="bankrollNow">€ 0.00</div>
+            </div>
             <div class="kpi">
               <div class="t">Profit totale</div>
               <div class="v" id="totalProfit">€ 0.00</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Crescita budget</div>
+              <div class="v" id="budgetChange">0.00%</div>
+            </div>
+          </div>
+
+          <div class="hint" style="margin-top:10px">
+            Se non imposti il budget in Settings, resta a 0.  
+            (Settings → Budget iniziale → Salva)
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="card">
+          <div class="sectionTitle">
+            <span>📊 Statistiche</span>
+            <span class="chip" id="gamesChip">0 giocate</span>
+          </div>
+
+          <div class="kpis">
+            <div class="kpi">
+              <div class="t">N partite giocate</div>
+              <div class="v" id="gamesCount">0</div>
             </div>
             <div class="kpi">
               <div class="t">Stake totale</div>
               <div class="v" id="totalStake">€ 0.00</div>
             </div>
             <div class="kpi">
-              <div class="t">ROI</div>
-              <div class="v" id="roi">0.00%</div>
-            </div>
-            <div class="kpi">
               <div class="t">Winrate</div>
               <div class="v" id="winrate">0.00%</div>
+            </div>
+            <div class="kpi">
+              <div class="t">ROI</div>
+              <div class="v" id="roi">0.00%</div>
             </div>
             <div class="kpi">
               <div class="t">Win consecutive</div>
@@ -170,9 +225,10 @@
 
         <div class="card">
           <div class="hint">
-            Tip mobile: aggiungila alla Home → si apre fullscreen come app.
+            Tip: aggiungila alla Home → si apre fullscreen come app.
           </div>
         </div>
+
       </div>
     </section>
 
@@ -180,6 +236,10 @@
     <section class="page" id="page-history">
       <div class="stack">
         <div class="card">
+          <div class="sectionTitle">
+            <span>📜 Storico</span>
+            <span class="chip" id="wlChip">W 0 / L 0</span>
+          </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn small" id="exportBtn">Export CSV</button>
             <button class="btn small danger" id="clearAllBtn">Reset dati</button>
@@ -210,7 +270,11 @@
     <section class="page" id="page-chart">
       <div class="stack">
         <div class="card">
-          <div class="hint">Grafico profitto cumulato (cronologico).</div>
+          <div class="sectionTitle">
+            <span>📈 Grafico</span>
+            <span class="chip">Profitto cumulato</span>
+          </div>
+          <div class="hint">Linea dell’equity (profit cumulato, cronologico).</div>
         </div>
         <div class="card">
           <div class="chartWrap">
@@ -223,8 +287,13 @@
     <!-- SETTINGS -->
     <section class="page" id="page-settings">
       <div class="stack">
+
         <div class="card">
-          <div class="hint" style="margin-bottom:10px">Imposta valori di default (si salvano).</div>
+          <div class="sectionTitle">
+            <span>⚙️ Defaults</span>
+            <span class="chip">si salvano</span>
+          </div>
+
           <div class="row">
             <div>
               <label for="defaultStake">Puntata default (€)</label>
@@ -235,9 +304,32 @@
               <input id="defaultOdds" inputmode="decimal" type="number" min="1.01" step="0.01" placeholder="es. 1.70" />
             </div>
           </div>
+
           <div class="row" style="margin-top:10px">
             <button class="btn" id="saveDefaultsBtn">💾 Salva default</button>
             <button class="btn small" id="applyDefaultsBtn">↩️ Applica a Home</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sectionTitle">
+            <span>💰 Budget</span>
+            <span class="chip">bankroll</span>
+          </div>
+
+          <div class="row">
+            <div style="grid-column:1 / -1">
+              <label for="startBudget">Budget iniziale (€)</label>
+              <input id="startBudget" inputmode="decimal" type="number" min="0" step="0.01" placeholder="es. 200" />
+              <div class="hint" style="margin-top:8px">
+                Il bankroll attuale = budget iniziale + profit totale.
+              </div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <button class="btn" id="saveBudgetBtn">💾 Salva budget</button>
+            <button class="btn small danger" id="resetBudgetBtn">Azzera budget</button>
           </div>
         </div>
 
@@ -248,6 +340,7 @@
             <br>• iPhone Safari: share → <b>Aggiungi a schermata Home</b>
           </div>
         </div>
+
       </div>
     </section>
   </div>
@@ -267,10 +360,10 @@
 
   <script>
   (() => {
-    const DATA_KEY = 'livepick_app_v1_rows';
-    const SETTINGS_KEY = 'livepick_app_v1_settings';
+    const DATA_KEY = 'livepick_app_v2_rows';
+    const SETTINGS_KEY = 'livepick_app_v2_settings';
 
-    // UI
+    // Pages / tabs
     const pages = {
       home: document.getElementById('page-home'),
       history: document.getElementById('page-history'),
@@ -280,19 +373,33 @@
     const pageTitle = document.getElementById('pageTitle');
     const tabs = Array.from(document.querySelectorAll('.tab'));
 
+    // Inputs
     const stakeEl = document.getElementById('stake');
     const oddsEl  = document.getElementById('odds');
-    const rowsEl  = document.getElementById('rows');
-
-    const totalProfitEl = document.getElementById('totalProfit');
-    const totalStakeEl  = document.getElementById('totalStake');
-    const roiEl         = document.getElementById('roi');
-    const winrateEl     = document.getElementById('winrate');
-    const winStreakEl   = document.getElementById('winStreak');
-    const loseStreakEl  = document.getElementById('loseStreak');
 
     const defaultStakeEl = document.getElementById('defaultStake');
     const defaultOddsEl  = document.getElementById('defaultOdds');
+    const startBudgetEl  = document.getElementById('startBudget');
+
+    // Table
+    const rowsEl = document.getElementById('rows');
+
+    // Home Budget UI
+    const budgetStartUI   = document.getElementById('budgetStart');
+    const bankrollNowUI   = document.getElementById('bankrollNow');
+    const budgetChangeUI  = document.getElementById('budgetChange');
+
+    // Stats UI
+    const gamesChip = document.getElementById('gamesChip');
+    const gamesCountUI = document.getElementById('gamesCount');
+    const wlChip = document.getElementById('wlChip');
+
+    const totalProfitUI = document.getElementById('totalProfit');
+    const totalStakeUI  = document.getElementById('totalStake');
+    const roiUI         = document.getElementById('roi');
+    const winrateUI     = document.getElementById('winrate');
+    const winStreakUI   = document.getElementById('winStreak');
+    const loseStreakUI  = document.getElementById('loseStreak');
 
     function money(n){
       const sign = n < 0 ? '-' : '';
@@ -359,16 +466,59 @@
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: true } },
-          scales: { x: { title: { display: true, text: 'Giocata # (cronologico)' } },
-                    y: { title: { display: true, text: '€' } } }
+          scales: {
+            x: { title: { display: true, text: 'Giocata # (cronologico)' } },
+            y: { title: { display: true, text: '€' } }
+          }
         }
       });
     }
 
     function render(){
       const rows = loadRows();
+      const settings = loadSettings();
 
-      // table
+      // Compute totals
+      const games = rows.length;
+      const totalStake = rows.reduce((a,r)=>a+r.stake,0);
+      const totalProfit = rows.reduce((a,r)=>a+r.profit,0);
+      const wins = rows.filter(r=>r.result==='WIN').length;
+      const losses = rows.filter(r=>r.result==='LOSE').length;
+      const winrate = games ? (wins/games)*100 : 0;
+      const roi = totalStake ? (totalProfit/totalStake)*100 : 0;
+
+      // Budget
+      const startBudget = Number(settings.startBudget ?? 0);
+      const bankrollNow = startBudget + totalProfit;
+      const budgetChange = startBudget > 0 ? ((bankrollNow - startBudget) / startBudget) * 100 : 0;
+
+      budgetStartUI.textContent = money(startBudget).replace('-', '');
+      bankrollNowUI.textContent = money(bankrollNow);
+      bankrollNowUI.classList.toggle('pos', bankrollNow >= startBudget);
+      bankrollNowUI.classList.toggle('neg', bankrollNow < startBudget);
+
+      budgetChangeUI.textContent = `${budgetChange.toFixed(2)}%`;
+      budgetChangeUI.classList.toggle('pos', budgetChange >= 0);
+      budgetChangeUI.classList.toggle('neg', budgetChange < 0);
+
+      // Stats UI
+      gamesChip.textContent = `${games} giocate`;
+      gamesCountUI.textContent = String(games);
+      wlChip.textContent = `W ${wins} / L ${losses}`;
+
+      totalStakeUI.textContent  = money(totalStake).replace('-', '');
+      totalProfitUI.textContent = money(totalProfit);
+      totalProfitUI.classList.toggle('pos', totalProfit >= 0);
+      totalProfitUI.classList.toggle('neg', totalProfit < 0);
+
+      roiUI.textContent = `${roi.toFixed(2)}%`;
+      winrateUI.textContent = `${winrate.toFixed(2)}%`;
+
+      const s = computeStreaks(rows);
+      winStreakUI.textContent  = `${s.winStreak} (max ${s.maxWin})`;
+      loseStreakUI.textContent = `${s.loseStreak} (max ${s.maxLose})`;
+
+      // Table
       rowsEl.innerHTML = '';
       rows.forEach((r, idx) => {
         const tr = document.createElement('tr');
@@ -386,24 +536,7 @@
         rowsEl.appendChild(tr);
       });
 
-      // totals
-      const totalStake = rows.reduce((a,r)=>a+r.stake,0);
-      const totalProfit = rows.reduce((a,r)=>a+r.profit,0);
-      const wins = rows.filter(r=>r.result==='WIN').length;
-      const wr = rows.length ? (wins/rows.length)*100 : 0;
-      const roi = totalStake ? (totalProfit/totalStake)*100 : 0;
-
-      totalStakeEl.textContent = money(totalStake).replace('-', '');
-      totalProfitEl.textContent = money(totalProfit);
-      roiEl.textContent = `${roi.toFixed(2)}%`;
-      winrateEl.textContent = `${wr.toFixed(2)}%`;
-
-      // streaks
-      const s = computeStreaks(rows);
-      winStreakEl.textContent  = `${s.winStreak} (max ${s.maxWin})`;
-      loseStreakEl.textContent = `${s.loseStreak} (max ${s.maxLose})`;
-
-      // chart
+      // Chart
       renderChart(rows);
     }
 
@@ -426,7 +559,6 @@
       render();
     }
 
-    // navigation (app feel)
     function go(page){
       for(const k in pages) pages[k].classList.remove('active');
       pages[page].classList.add('active');
@@ -435,16 +567,17 @@
       const titles = {home:'🏠 Home', history:'📜 Storico', chart:'📈 Grafico', settings:'⚙️ Settings'};
       pageTitle.textContent = titles[page] || 'Livepick';
 
-      // se entro in grafico, ricalcolo per sicurezza
       if(page === 'chart') render();
     }
 
+    // Tab clicks
     tabs.forEach(t => t.addEventListener('click', () => go(t.dataset.go)));
 
-    // buttons
+    // WIN/LOSE
     document.getElementById('winBtn').addEventListener('click', () => add('WIN'));
     document.getElementById('loseBtn').addEventListener('click', () => add('LOSE'));
 
+    // Delete row
     rowsEl.addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-del]');
       if(!btn) return;
@@ -453,6 +586,7 @@
       render();
     });
 
+    // Reset all
     document.getElementById('clearAllBtn').addEventListener('click', () => {
       if(confirm('Sicuro di voler cancellare tutti i dati?')) {
         localStorage.removeItem(DATA_KEY);
@@ -460,6 +594,7 @@
       }
     });
 
+    // Export CSV
     document.getElementById('exportBtn').addEventListener('click', () => {
       const rows = loadRows();
       const header = ['date','stake','odds','result','profit'];
@@ -474,7 +609,7 @@
       URL.revokeObjectURL(url);
     });
 
-    // settings: defaults
+    // Defaults
     function applyDefaultsToHome(){
       const s = loadSettings();
       if(s.defaultStake != null) stakeEl.value = Number(s.defaultStake).toFixed(2);
@@ -486,7 +621,8 @@
       const doo = Number(defaultOddsEl.value);
       if(!(ds > 0)) { alert('Puntata default non valida.'); defaultStakeEl.focus(); return; }
       if(!(doo >= 1.01)) { alert('Quota default non valida.'); defaultOddsEl.focus(); return; }
-      saveSettings({ defaultStake: ds, defaultOdds: doo });
+      const cur = loadSettings();
+      saveSettings({ ...cur, defaultStake: ds, defaultOdds: doo });
       alert('Default salvati ✅');
       applyDefaultsToHome();
     });
@@ -496,15 +632,34 @@
       go('home');
     });
 
-    // init defaults
+    // Budget save/reset
+    document.getElementById('saveBudgetBtn').addEventListener('click', () => {
+      const b = Number(startBudgetEl.value);
+      if(!(b >= 0)) { alert('Budget non valido.'); startBudgetEl.focus(); return; }
+      const cur = loadSettings();
+      saveSettings({ ...cur, startBudget: b });
+      alert('Budget salvato ✅');
+      render();
+    });
+
+    document.getElementById('resetBudgetBtn').addEventListener('click', () => {
+      if(!confirm('Azzero il budget iniziale?')) return;
+      const cur = loadSettings();
+      saveSettings({ ...cur, startBudget: 0 });
+      startBudgetEl.value = '0.00';
+      render();
+    });
+
+    // Init settings
     const s = loadSettings();
     defaultStakeEl.value = (s.defaultStake ?? 10).toFixed(2);
     defaultOddsEl.value  = (s.defaultOdds ?? 1.70).toFixed(2);
-    applyDefaultsToHome();
+    startBudgetEl.value  = (s.startBudget ?? 0).toFixed(2);
 
+    applyDefaultsToHome();
     render();
 
-    // PWA: service worker
+    // PWA
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./sw.js");
     }
@@ -512,4 +667,3 @@
   </script>
 </body>
 </html>
-
