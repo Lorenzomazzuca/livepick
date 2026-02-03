@@ -1,0 +1,515 @@
+
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Livepick Tracker</title>
+
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0b0f17">
+
+  <style>
+    :root{
+      --bg:#0b0f17; --card:#121a2a; --text:#e7eefc; --muted:#9bb0d0;
+      --win:#26d07c; --lose:#ff4d4f; --accent:#4c8dff; --line:#20304f;
+      --safeTop: env(safe-area-inset-top);
+      --safeBot: env(safe-area-inset-bottom);
+    }
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    body{
+      margin:0;background:linear-gradient(180deg,#0b0f17 0%, #070a10 100%);
+      color:var(--text);
+      padding-top: calc(12px + var(--safeTop));
+      padding-bottom: calc(74px + var(--safeBot));
+    }
+    .wrap{max-width:720px;margin:0 auto;padding:14px;}
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      position:sticky;top:0;
+      background:linear-gradient(180deg, rgba(11,15,23,.95) 0%, rgba(11,15,23,.70) 100%);
+      backdrop-filter: blur(8px);
+      padding:10px 14px;
+      border-bottom:1px solid rgba(32,48,79,.6);
+      z-index:10;
+    }
+    .title{font-weight:900;letter-spacing:.2px}
+    .chip{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;
+      border:1px solid var(--line); background:#0b1220; color:var(--muted); font-size:12px;
+    }
+    .card{
+      background:rgba(18,26,42,.92);
+      border:1px solid var(--line); border-radius:16px; padding:14px;
+    }
+    .stack{display:grid;gap:12px}
+    label{display:block;font-size:12px;color:var(--muted);margin:6px 0}
+    input{
+      width:100%; padding:14px 12px; border-radius:12px;
+      border:1px solid var(--line); background:#0b1220; color:var(--text);
+      outline:none; font-size:16px;
+    }
+    input:focus{border-color:rgba(76,141,255,.85); box-shadow:0 0 0 3px rgba(76,141,255,.16);}
+    .row{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+    .btn{
+      border:1px solid var(--line); background:#0b1220; color:var(--text);
+      padding:14px 12px; border-radius:14px; cursor:pointer; font-weight:900;
+      font-size:16px;
+    }
+    .btn:active{transform:scale(.99)}
+    .btn.win{border-color:rgba(38,208,124,.6)}
+    .btn.lose{border-color:rgba(255,77,79,.6)}
+    .btn.win:hover{border-color:rgba(38,208,124,.95)}
+    .btn.lose:hover{border-color:rgba(255,77,79,.95)}
+    .btn.small{padding:10px 12px;font-size:13px;color:var(--muted);font-weight:800}
+    .kpis{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+    .kpi{
+      background:#0b1220;border:1px solid var(--line);border-radius:14px;padding:12px;
+    }
+    .kpi .t{font-size:11px;color:var(--muted)}
+    .kpi .v{font-size:16px;font-weight:950;margin-top:4px}
+    .v.pos{color:var(--win)}
+    .v.neg{color:var(--lose)}
+    .hint{font-size:12px;color:var(--muted);line-height:1.45}
+    table{width:100%; border-collapse:collapse; font-size:13px}
+    th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+    th{color:var(--muted);font-size:12px;font-weight:800}
+    .tag{
+      display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:950;
+      border:1px solid var(--line);
+    }
+    .tag.win{color:#0b0f17;background:var(--win);border-color:rgba(38,208,124,.2)}
+    .tag.lose{color:#0b0f17;background:var(--lose);border-color:rgba(255,77,79,.2)}
+    .profit.pos{color:var(--win);font-weight:950}
+    .profit.neg{color:var(--lose);font-weight:950}
+    .chartWrap{background:#0b1220;border:1px solid var(--line);border-radius:14px;padding:12px}
+    .bottomNav{
+      position:fixed;left:0;right:0;bottom:0;
+      padding-bottom: var(--safeBot);
+      background:rgba(11,15,23,.92);
+      border-top:1px solid rgba(32,48,79,.7);
+      backdrop-filter: blur(10px);
+      z-index:20;
+    }
+    .tabs{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 12px;}
+    .tab{
+      border:1px solid var(--line);background:#0b1220;color:var(--muted);
+      padding:10px 8px;border-radius:14px;font-weight:900;font-size:12px;cursor:pointer;
+      display:flex;flex-direction:column;align-items:center;gap:6px;
+    }
+    .tab.active{border-color:rgba(76,141,255,.85);color:var(--text)}
+    .ico{font-size:16px;line-height:1}
+    .page{display:none}
+    .page.active{display:block}
+    .danger{border-color:rgba(255,77,79,.7)}
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="title" id="pageTitle">🏠 Home</div>
+    <div class="chip">💾 locale</div>
+  </div>
+
+  <div class="wrap">
+    <!-- HOME -->
+    <section class="page active" id="page-home">
+      <div class="stack">
+        <div class="card">
+          <div class="row">
+            <div>
+              <label for="stake">Puntata (€)</label>
+              <input id="stake" inputmode="decimal" type="number" min="0" step="0.01" placeholder="es. 10" />
+            </div>
+            <div>
+              <label for="odds">Quota</label>
+              <input id="odds" inputmode="decimal" type="number" min="1.01" step="0.01" placeholder="es. 1.70" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <button class="btn win" id="winBtn">✅ WIN</button>
+            <button class="btn lose" id="loseBtn">❌ LOSE</button>
+          </div>
+
+          <div class="hint" style="margin-top:10px">
+            Profitto WIN = puntata × (quota − 1) • Profitto LOSE = − puntata
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="kpis">
+            <div class="kpi">
+              <div class="t">Profit totale</div>
+              <div class="v" id="totalProfit">€ 0.00</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Stake totale</div>
+              <div class="v" id="totalStake">€ 0.00</div>
+            </div>
+            <div class="kpi">
+              <div class="t">ROI</div>
+              <div class="v" id="roi">0.00%</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Winrate</div>
+              <div class="v" id="winrate">0.00%</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Win consecutive</div>
+              <div class="v" id="winStreak">0 (max 0)</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Lose consecutive</div>
+              <div class="v" id="loseStreak">0 (max 0)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hint">
+            Tip mobile: aggiungila alla Home → si apre fullscreen come app.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STORICO -->
+    <section class="page" id="page-history">
+      <div class="stack">
+        <div class="card">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn small" id="exportBtn">Export CSV</button>
+            <button class="btn small danger" id="clearAllBtn">Reset dati</button>
+          </div>
+          <div class="hint" style="margin-top:8px">Tocca 🗑️ per eliminare una giocata.</div>
+        </div>
+
+        <div class="card" style="overflow:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Data</th>
+                <th>€</th>
+                <th>Quota</th>
+                <th>Esito</th>
+                <th>Profit</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRAFICO -->
+    <section class="page" id="page-chart">
+      <div class="stack">
+        <div class="card">
+          <div class="hint">Grafico profitto cumulato (cronologico).</div>
+        </div>
+        <div class="card">
+          <div class="chartWrap">
+            <canvas id="equityChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="page" id="page-settings">
+      <div class="stack">
+        <div class="card">
+          <div class="hint" style="margin-bottom:10px">Imposta valori di default (si salvano).</div>
+          <div class="row">
+            <div>
+              <label for="defaultStake">Puntata default (€)</label>
+              <input id="defaultStake" inputmode="decimal" type="number" min="0" step="0.01" placeholder="es. 10" />
+            </div>
+            <div>
+              <label for="defaultOdds">Quota default</label>
+              <input id="defaultOdds" inputmode="decimal" type="number" min="1.01" step="0.01" placeholder="es. 1.70" />
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn" id="saveDefaultsBtn">💾 Salva default</button>
+            <button class="btn small" id="applyDefaultsBtn">↩️ Applica a Home</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hint">
+            Installazione:
+            <br>• Android Chrome: menu ⋮ → <b>Installa app</b>
+            <br>• iPhone Safari: share → <b>Aggiungi a schermata Home</b>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Bottom tab bar -->
+  <nav class="bottomNav">
+    <div class="tabs">
+      <button class="tab active" data-go="home"><span class="ico">🏠</span>Home</button>
+      <button class="tab" data-go="history"><span class="ico">📜</span>Storico</button>
+      <button class="tab" data-go="chart"><span class="ico">📈</span>Grafico</button>
+      <button class="tab" data-go="settings"><span class="ico">⚙️</span>Settings</button>
+    </div>
+  </nav>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+  (() => {
+    const DATA_KEY = 'livepick_app_v1_rows';
+    const SETTINGS_KEY = 'livepick_app_v1_settings';
+
+    // UI
+    const pages = {
+      home: document.getElementById('page-home'),
+      history: document.getElementById('page-history'),
+      chart: document.getElementById('page-chart'),
+      settings: document.getElementById('page-settings')
+    };
+    const pageTitle = document.getElementById('pageTitle');
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+
+    const stakeEl = document.getElementById('stake');
+    const oddsEl  = document.getElementById('odds');
+    const rowsEl  = document.getElementById('rows');
+
+    const totalProfitEl = document.getElementById('totalProfit');
+    const totalStakeEl  = document.getElementById('totalStake');
+    const roiEl         = document.getElementById('roi');
+    const winrateEl     = document.getElementById('winrate');
+    const winStreakEl   = document.getElementById('winStreak');
+    const loseStreakEl  = document.getElementById('loseStreak');
+
+    const defaultStakeEl = document.getElementById('defaultStake');
+    const defaultOddsEl  = document.getElementById('defaultOdds');
+
+    function money(n){
+      const sign = n < 0 ? '-' : '';
+      return `${sign}€ ${Math.abs(n).toFixed(2)}`;
+    }
+    function nowStr(){
+      const d = new Date();
+      const pad = (x)=> String(x).padStart(2,'0');
+      return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function loadRows(){
+      try { return JSON.parse(localStorage.getItem(DATA_KEY)) || []; }
+      catch { return []; }
+    }
+    function saveRows(rows){
+      localStorage.setItem(DATA_KEY, JSON.stringify(rows));
+    }
+
+    function loadSettings(){
+      try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}; }
+      catch { return {}; }
+    }
+    function saveSettings(s){
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+    }
+
+    function calcProfit(stake, odds, result){
+      return (result === 'WIN') ? stake * (odds - 1) : -stake;
+    }
+
+    function computeStreaks(rows){
+      let winStreak = 0, loseStreak = 0;
+      if(rows.length){
+        const first = rows[0].result;
+        if(first === 'WIN'){
+          for(const r of rows){ if(r.result === 'WIN') winStreak++; else break; }
+        } else {
+          for(const r of rows){ if(r.result === 'LOSE') loseStreak++; else break; }
+        }
+      }
+      let maxWin = 0, maxLose = 0, curWin = 0, curLose = 0;
+      for(const r of rows.slice().reverse()){
+        if(r.result === 'WIN'){ curWin++; curLose = 0; }
+        else { curLose++; curWin = 0; }
+        if(curWin > maxWin) maxWin = curWin;
+        if(curLose > maxLose) maxLose = curLose;
+      }
+      return { winStreak, loseStreak, maxWin, maxLose };
+    }
+
+    // Chart
+    let chart;
+    function renderChart(rows){
+      const ctx = document.getElementById('equityChart').getContext('2d');
+      const ordered = rows.slice().reverse();
+      let cum = 0;
+      const labels = ordered.map((_, i) => String(i + 1));
+      const data = ordered.map(r => (cum += r.profit));
+      if(chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'Profitto cumulato (€)', data, tension: 0.25, pointRadius: 2 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: true } },
+          scales: { x: { title: { display: true, text: 'Giocata # (cronologico)' } },
+                    y: { title: { display: true, text: '€' } } }
+        }
+      });
+    }
+
+    function render(){
+      const rows = loadRows();
+
+      // table
+      rowsEl.innerHTML = '';
+      rows.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        const profitClass = r.profit >= 0 ? 'pos' : 'neg';
+        const tagClass = r.result === 'WIN' ? 'win' : 'lose';
+        tr.innerHTML = `
+          <td>${idx+1}</td>
+          <td style="color:#9bb0d0">${r.date}</td>
+          <td>€ ${r.stake.toFixed(2)}</td>
+          <td>${r.odds.toFixed(2)}</td>
+          <td><span class="tag ${tagClass}">${r.result}</span></td>
+          <td class="profit ${profitClass}">${money(r.profit)}</td>
+          <td><button class="btn small" data-del="${r.id}">🗑️</button></td>
+        `;
+        rowsEl.appendChild(tr);
+      });
+
+      // totals
+      const totalStake = rows.reduce((a,r)=>a+r.stake,0);
+      const totalProfit = rows.reduce((a,r)=>a+r.profit,0);
+      const wins = rows.filter(r=>r.result==='WIN').length;
+      const wr = rows.length ? (wins/rows.length)*100 : 0;
+      const roi = totalStake ? (totalProfit/totalStake)*100 : 0;
+
+      totalStakeEl.textContent = money(totalStake).replace('-', '');
+      totalProfitEl.textContent = money(totalProfit);
+      roiEl.textContent = `${roi.toFixed(2)}%`;
+      winrateEl.textContent = `${wr.toFixed(2)}%`;
+
+      // streaks
+      const s = computeStreaks(rows);
+      winStreakEl.textContent  = `${s.winStreak} (max ${s.maxWin})`;
+      loseStreakEl.textContent = `${s.loseStreak} (max ${s.maxLose})`;
+
+      // chart
+      renderChart(rows);
+    }
+
+    function add(result){
+      const stake = Number(stakeEl.value);
+      const odds  = Number(oddsEl.value);
+
+      if(!stake || stake <= 0){ alert('Inserisci una puntata valida.'); stakeEl.focus(); return; }
+      if(!odds || odds < 1.01){ alert('Inserisci una quota valida (min 1.01).'); oddsEl.focus(); return; }
+
+      const rows = loadRows();
+      rows.unshift({
+        id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random()),
+        date: nowStr(),
+        stake, odds,
+        result,
+        profit: calcProfit(stake, odds, result)
+      });
+      saveRows(rows);
+      render();
+    }
+
+    // navigation (app feel)
+    function go(page){
+      for(const k in pages) pages[k].classList.remove('active');
+      pages[page].classList.add('active');
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.go === page));
+
+      const titles = {home:'🏠 Home', history:'📜 Storico', chart:'📈 Grafico', settings:'⚙️ Settings'};
+      pageTitle.textContent = titles[page] || 'Livepick';
+
+      // se entro in grafico, ricalcolo per sicurezza
+      if(page === 'chart') render();
+    }
+
+    tabs.forEach(t => t.addEventListener('click', () => go(t.dataset.go)));
+
+    // buttons
+    document.getElementById('winBtn').addEventListener('click', () => add('WIN'));
+    document.getElementById('loseBtn').addEventListener('click', () => add('LOSE'));
+
+    rowsEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-del]');
+      if(!btn) return;
+      const id = btn.getAttribute('data-del');
+      saveRows(loadRows().filter(r => r.id !== id));
+      render();
+    });
+
+    document.getElementById('clearAllBtn').addEventListener('click', () => {
+      if(confirm('Sicuro di voler cancellare tutti i dati?')) {
+        localStorage.removeItem(DATA_KEY);
+        render();
+      }
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const rows = loadRows();
+      const header = ['date','stake','odds','result','profit'];
+      const lines = [header.join(',')].concat(
+        rows.map(r => [r.date, r.stake.toFixed(2), r.odds.toFixed(2), r.result, r.profit.toFixed(2)].join(','))
+      );
+      const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'livepick-tracker.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // settings: defaults
+    function applyDefaultsToHome(){
+      const s = loadSettings();
+      if(s.defaultStake != null) stakeEl.value = Number(s.defaultStake).toFixed(2);
+      if(s.defaultOdds != null) oddsEl.value = Number(s.defaultOdds).toFixed(2);
+    }
+
+    document.getElementById('saveDefaultsBtn').addEventListener('click', () => {
+      const ds = Number(defaultStakeEl.value);
+      const doo = Number(defaultOddsEl.value);
+      if(!(ds > 0)) { alert('Puntata default non valida.'); defaultStakeEl.focus(); return; }
+      if(!(doo >= 1.01)) { alert('Quota default non valida.'); defaultOddsEl.focus(); return; }
+      saveSettings({ defaultStake: ds, defaultOdds: doo });
+      alert('Default salvati ✅');
+      applyDefaultsToHome();
+    });
+
+    document.getElementById('applyDefaultsBtn').addEventListener('click', () => {
+      applyDefaultsToHome();
+      go('home');
+    });
+
+    // init defaults
+    const s = loadSettings();
+    defaultStakeEl.value = (s.defaultStake ?? 10).toFixed(2);
+    defaultOddsEl.value  = (s.defaultOdds ?? 1.70).toFixed(2);
+    applyDefaultsToHome();
+
+    render();
+
+    // PWA: service worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js");
+    }
+  })();
+  </script>
+</body>
+</html>
+
